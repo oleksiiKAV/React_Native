@@ -1,28 +1,46 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import 'react-native-gesture-handler';
+import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import { RegistrationScreen } from './Screens/login/RegistrationScreen';
+import { LoginScreen } from './Screens/login/LoginScreen';
+import { Home } from './Screens/home/Home';
 
-export default App = () => (
-  <View style={styles.container}>
-    <Text style={styles.title}>React Native</Text>
-  </View>
-);
+export default function App() {
+  const [fontsLoaded] = useFonts({
+    'Roboto-Regular': require('./assets/ttf/Roboto-Regular.ttf'),
+    'Roboto-Medium': require('./assets/ttf/Roboto-Medium.ttf'),
+  });
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: "#eaeaea"
-  },
-  title: {
-    marginTop: 16,
-    paddingVertical: 8,
-    borderWidth: 4,
-    borderColor: "#20232a",
-    borderRadius: 14,
-    backgroundColor: "#61dafb",
-    color: "#20232a",
-    textAlign: "center",
-    fontSize: 30,
-    fontWeight: "bold"
+  if (!fontsLoaded) {
+    return null;
   }
-});
+
+  const MainStack = createStackNavigator();
+
+  return (
+    <>
+      <StatusBar style="auto" />
+      <NavigationContainer>
+        <MainStack.Navigator initialRouteName="LoginScreen">
+          {/* <MainStack.Screen
+            name="RegistrationScreen"
+            component={RegistrationScreen}
+            options={{ headerShown: false }}
+          /> */}
+          {/* <MainStack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />  */}
+          <MainStack.Screen
+            name="HomeScreen"
+            component={Home}
+            options={{ headerShown: false }}
+          />
+        </MainStack.Navigator>
+      </NavigationContainer>
+    </>
+  );
+}
