@@ -11,11 +11,27 @@ import {
   Platform,
   Keyboard,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import backgroundImage from '../../assets/images/background.png';
+import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
+import { ImageUser } from '../../components/ImgUser';
 
-export const RegistrationScreen = () => {
+const initialState = {
+  login: '',
+  email: '',
+  password: '',
+};
+
+export const RegistrationScreen = ({ setIsLogin }) => {
   const [focusedInput, setFocusedInput] = useState(null);
+  const [state, setState] = useState(initialState);
+  const [isHidePassword, setIsHidePassword] = useState(true);
+
+  const { height, width } = useWindowDimensions();
+  const [selectedImage, setSelectedImage] = useState(null);
+  const navigation = useNavigation();
 
   const handleInputFocus = (input) => {
     setFocusedInput(input);
@@ -25,21 +41,44 @@ export const RegistrationScreen = () => {
     setFocusedInput(null);
   };
 
+  const handleHidePassword = () => {
+    setIsHidePassword(!isHidePassword);
+  };
+  const handleSubmit = () => {
+    console.log(state);
+    setState(initialState);
+    setIsLogin(true);
+  };
+
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    } else {
+      alert('You did not select any image.');
+    }
+  }; 
+  
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
-      >
-        <ImageBackground
-          style={styles.imageBackground}
-          source={backgroundImage}
-          resizeMode="cover"
+    <ImageBackground
+      source={backgroundImage}
+      style={{ position: 'absolute', width: width, height: height }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? -165 : -165}
         >
           <View style={styles.formContainer}>
-            <View style={styles.imagePhotoContainer}>
-              <Image style={styles.imagePhoto} />
-            </View>
+            <ImageUser
+              selectedImage={selectedImage}
+              onPress={pickImageAsync}
+              onDelete={setSelectedImage}
+            />
             <Text style={styles.formTitle}>Реєстрація</Text>
             <View style={styles.inputThumb}>
               <TextInput
@@ -48,10 +87,13 @@ export const RegistrationScreen = () => {
                   focusedInput === 'login' && styles.focusedFormInput,
                 ]}
                 placeholder="Логін"
+                value={state.login}
+                onChangeText={(value) =>
+                  setState((prev) => ({ ...prev, login: value }))
+                }
                 onFocus={() => handleInputFocus('login')}
                 onBlur={handleInputBlur}
               />
-
               <TextInput
                 style={[
                   styles.formInput,
@@ -60,36 +102,58 @@ export const RegistrationScreen = () => {
                 placeholder="Адреса електронної пошти"
                 textContentType="emailAddress"
                 keyboardType="email-address"
+                value={state.email}
+                onChangeText={(value) =>
+                  setState((prev) => ({ ...prev, email: value }))
+                }
                 onFocus={() => handleInputFocus('email')}
                 onBlur={handleInputBlur}
               />
-
-              <TextInput
-                style={[
-                  styles.formInput,
-                  focusedInput === 'password' && styles.focusedFormInput,
-                ]}
-                placeholder="Пароль"
-                textContentType="password"
-                secureTextEntry={true}
-                onFocus={() => handleInputFocus('password')}
-                onBlur={handleInputBlur}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={[
+                    styles.formInput,
+                    focusedInput === 'password' && styles.focusedFormInput,
+                  ]}
+                  placeholder="Пароль"
+                  textContentType="password"
+                  secureTextEntry={isHidePassword}
+                  value={state.password}
+                  onChangeText={(value) =>
+                    setState((prev) => ({ ...prev, password: value }))
+                  }
+                  onFocus={() => handleInputFocus('password')}
+                  onBlur={handleInputBlur}
+                />
+                <TouchableOpacity
+                  style={styles.passwordButton}
+                  onPress={handleHidePassword}
+                >
+                  <Text style={styles.passwordButtonText}>
+                    {isHidePassword ? 'Показати' : 'Приховати'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonTitle}>Зареєстуватися</Text>
             </TouchableOpacity>
-            <Text style={styles.textLogin}>Вже є акаунт? Увійти</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('LoginScreen')}
+            >
+              <Text style={styles.textLogin}>Вже є акаунт? Увійти</Text>
+            </TouchableOpacity>
           </View>
-        </ImageBackground>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'flex-end',
   },
 
   imageBackground: {
@@ -147,6 +211,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: '#FF6C00',
     backgroundColor: '#FFFFFF',
+  },
+
+  passwordContainer: {
+    position: 'relative',
+  },
+  passwordButton: {
+    position: 'absolute',
+    top: 15,
+    right: 12,
+  },
+  passwordButtonText: {
+    fontSize: 16,
+    fontFamily: 'Roboto-Regular',
+    color: '#1B4371',
   },
 
   button: {
