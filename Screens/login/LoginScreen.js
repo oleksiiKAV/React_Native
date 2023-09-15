@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   ImageBackground,
   StyleSheet,
@@ -10,11 +10,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
-} from 'react-native';
-import backgroundImage from '../../assets/images/background.png';
+  useWindowDimensions,
+} from "react-native";
+import backgroundImage from "../../assets/images/background.png";
+import { useNavigation } from "@react-navigation/native";
 
-export const LoginScreen = () => {
+const initialState = {
+  email: "",
+  password: "",
+};
+
+export const LoginScreen = ({ setIsLogin }) => {
+  const [state, setState] = useState(initialState);
   const [focusedInput, setFocusedInput] = useState(null);
+  const [isHidePassword, setIsHidePassword] = useState(true);
+  const { height, width } = useWindowDimensions();
+  const navigation = useNavigation();
 
   const handleInputFocus = (input) => {
     setFocusedInput(input);
@@ -24,16 +35,26 @@ export const LoginScreen = () => {
     setFocusedInput(null);
   };
 
+  const handleHidePassword = () => {
+    setIsHidePassword(!isHidePassword);
+  };
+  const handleSubmit = () => {
+    console.log(state);
+    setState(initialState);
+    setIsLogin(true);
+  };
+
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
-      >
-        <ImageBackground
-          style={styles.imageBackground}
-          source={backgroundImage}
-          resizeMode="cover"
+    <ImageBackground
+      style={{ position: "absolute", width: width, height: height }}
+      source={backgroundImage}
+      // resizeMode="cover"
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS == "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? -230 : -235}
         >
           <View style={styles.formContainer}>
             <Text style={styles.formTitle}>Увійти</Text>
@@ -41,49 +62,71 @@ export const LoginScreen = () => {
               <TextInput
                 style={[
                   styles.formInput,
-                  focusedInput === 'email' && styles.focusedFormInput,
+                  focusedInput === "email" && styles.focusedFormInput,
                 ]}
                 placeholder="Адреса електронної пошти"
                 textContentType="emailAddress"
                 keyboardType="email-address"
-                onFocus={() => handleInputFocus('email')}
+                value={state.email}
+                onChangeText={(value) =>
+                  setState((prev) => ({ ...prev, email: value }))
+                }
+                onFocus={() => handleInputFocus("email")}
                 onBlur={handleInputBlur}
               />
-
-              <TextInput
-                style={[
-                  styles.formInput,
-                  focusedInput === 'password' && styles.focusedFormInput,
-                ]}
-                placeholder="Пароль"
-                textContentType="password"
-                secureTextEntry={true}
-                onFocus={() => handleInputFocus('password')}
-                onBlur={handleInputBlur}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={[
+                    styles.formInput,
+                    focusedInput === "password" && styles.focusedFormInput,
+                  ]}
+                  placeholder="Пароль"
+                  textContentType="password"
+                  secureTextEntry={isHidePassword}
+                  value={state.password}
+                  onChangeText={(value) =>
+                    setState((prev) => ({ ...prev, password: value }))
+                  }
+                  onFocus={() => handleInputFocus("password")}
+                  onBlur={handleInputBlur}
+                />
+                <TouchableOpacity
+                  style={styles.passwordButton}
+                  onPress={handleHidePassword}
+                >
+                  <Text style={styles.passwordButtonText}>
+                    {isHidePassword ? "Показати" : "Приховати"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonTitle}>Увійти</Text>
             </TouchableOpacity>
-            <Text style={styles.textLogin}>
-              Немає акаунту?{' '}
-              <Text style={styles.registrationText}>Зареєструватися</Text>
-            </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("RegistrationScreen")}
+            >
+              <Text style={styles.textLogin}>
+                Немає акаунту?{" "}
+                <Text style={styles.registrationText}>Зареєструватися</Text>
+              </Text>
+            </TouchableOpacity>
           </View>
-        </ImageBackground>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "flex-end",
   },
   imageBackground: {
     flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'flex-end',
+    resizeMode: "cover",
+    justifyContent: "flex-end",
   },
   formContainer: {
     paddingTop: 32,
@@ -91,13 +134,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderTopStartRadius: 25,
     borderTopEndRadius: 25,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   formTitle: {
     marginBottom: 32,
     fontSize: 30,
     lineHeight: 35,
-    textAlign: 'center',
+    textAlign: "center",
   },
   inputThumb: {
     marginBottom: 32,
@@ -109,35 +152,47 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
     lineHeight: 19,
-    backgroundColor: '#F6F6F6',
+    backgroundColor: "#F6F6F6",
   },
   focusedFormInput: {
     borderWidth: 1,
-    borderStyle: 'solid',
+    borderStyle: "solid",
     borderRadius: 8,
-    borderColor: '#FF6C00',
-    backgroundColor: '#FFFFFF',
+    borderColor: "#FF6C00",
+    backgroundColor: "#FFFFFF",
+  },
+  passwordContainer: {
+    position: "relative",
+  },
+  passwordButton: {
+    position: "absolute",
+    top: 15,
+    right: 12,
+  },
+  passwordButtonText: {
+    fontSize: 16,
+    color: "#1B4371",
   },
   button: {
     paddingVertical: 16,
     paddingHorizontal: 32,
     marginBottom: 16,
     borderRadius: 100,
-    backgroundColor: '#FF6C00',
+    backgroundColor: "#FF6C00",
   },
   buttonTitle: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
     lineHeight: 19,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   textLogin: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
     lineHeight: 19,
-    color: '#1B4371',
+    color: "#1B4371",
   },
   registrationText: {
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
 });
