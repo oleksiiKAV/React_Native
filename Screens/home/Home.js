@@ -1,25 +1,27 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { PostsScreen } from '../childScreens/PostsScreen';
-import { CreatePostsScreen } from '../mainScreens/CreatePostsScreen';
-import { ProfileScreen } from '../mainScreens/ProfileScreen';
-import { Feather } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
+import { CreatePostsScreen, PostsScreen, ProfileScreen } from "../mainScreens/";
+
+import { Feather } from "@expo/vector-icons";
+import { useState } from "react";
 
 const Tab = createBottomTabNavigator();
 
-export const Home = ({ navigation, setIsLogin }) => {
+export const Home = ({ navigation }) => {
+  const [tabBarStyle, setTabBarStyle] = useState("flex");
   return (
     <Tab.Navigator
       screenOptions={{
-        headerTitleAlign: 'center',
+        headerTitleAlign: "center",
         headerStyle: {
           borderBottomWidth: 1,
-          borderColor: '#E5E5E5',
+          borderColor: "#E5E5E5",
         },
         tabBarShowLabel: false,
-        tabBarActiveBackgroundColor: '#FF6C00',
-        tabBarActiveTintColor: '#ffffff',
-        tabBarInactiveTintColor: '#212121',
+        tabBarActiveBackgroundColor: "#FF6C00",
+        tabBarActiveTintColor: "#ffffff",
+        tabBarInactiveTintColor: "#212121",
 
         tabBarStyle: {
           height: 83,
@@ -27,7 +29,7 @@ export const Home = ({ navigation, setIsLogin }) => {
           paddingBottom: 34,
           paddingHorizontal: 80,
           borderTopWidth: 1,
-          borderColor: '#E5E5E5',
+          borderColor: "#E5E5E5",
         },
 
         tabBarItemStyle: {
@@ -37,34 +39,20 @@ export const Home = ({ navigation, setIsLogin }) => {
     >
       <Tab.Screen
         name="PostsScreen"
-        component={PostsScreen}
         options={{
-          headerTitle: () => (
-            <Text
-              style={{
-                marginBottom: 10,
-                fontFamily: 'Roboto-Medium',
-                fontSize: 17,
-              }}
-            >
-              Публікації
-            </Text>
-          ),
-
-          headerRight: () => (
-            <TouchableOpacity
-              style={{ marginRight: 16, marginBottom: 10 }}
-              onPress={() => setIsLogin(false)}
-            >
-              <Feather name="log-out" size={24} color="#BDBDBD" />
-            </TouchableOpacity>
-          ),
-            //use Feater React icons
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <Feather name="grid" size={24} color={color} />
           ),
         }}
-      />
+      >
+        {({ navigation }) => (
+          <PostsScreen
+            navigation={navigation}
+            setTabBarStyle={setTabBarStyle}
+          />
+        )}
+      </Tab.Screen>
       <Tab.Screen
         name="CreatePostsScreen"
         component={CreatePostsScreen}
@@ -73,7 +61,7 @@ export const Home = ({ navigation, setIsLogin }) => {
             <Text
               style={{
                 marginBottom: 10,
-                fontFamily: 'Roboto-Medium',
+                fontFamily: "Roboto-Medium",
                 fontSize: 17,
               }}
             >
