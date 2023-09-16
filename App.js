@@ -1,15 +1,20 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createStackNavigator } from '@react-navigation/stack';
+// import { RegistrationScreen } from './Screens/login/RegistrationScreen';
+// import { LoginScreen } from './Screens/login/LoginScreen';
+// import { Home } from './Screens/home/Home';
+// import { useState } from 'react';
+
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
-import { RegistrationScreen } from './Screens/login/RegistrationScreen';
-import { LoginScreen } from './Screens/login/LoginScreen';
-import { Home } from './Screens/home/Home';
-import { useState } from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './redux/store';
+import { Main } from './components/Main';
 
 export default function App() {
-  const [isLogin, setIsLogin] = useState(false);
+  // const [isLogin, setIsLogin] = useState(false);
 
   const [fontsLoaded] = useFonts({
     'Roboto-Regular': require('./assets/ttf/Roboto-Regular.ttf'),
@@ -20,45 +25,45 @@ export default function App() {
     return null;
   }
 
-  const MainStack = createStackNavigator();
+  // const MainStack = createStackNavigator();
 
-  const isLogIn = () => {
-    if (!isLogin) {
-      return (
-        <>
-          <MainStack.Screen
-            name="RegistrationScreen"
-            options={{ headerShown: false }}
-          >
-            {({ navigation }) => (
-              <RegistrationScreen
-                navigation={navigation}
-                setIsLogin={setIsLogin}
-              />
-            )}
-          </MainStack.Screen>
-          <MainStack.Screen name="LoginScreen" options={{ headerShown: false }}>
-            {({ navigation }) => (
-              <LoginScreen navigation={navigation} setIsLogin={setIsLogin} />
-            )}
-          </MainStack.Screen>
-        </>
-      );
-    }
-    return (
-      <MainStack.Screen name="HomeScreen" options={{ headerShown: false }}>
-        {({ navigation }) => (
-          <Home navigation={navigation} setIsLogin={setIsLogin} />
-        )}
-      </MainStack.Screen>
-    );
-  };
+  // const isLogIn = () => {
+  //   if (!isLogin) {
+  //     return (
+  //       <>
+  //         <MainStack.Screen
+  //           name="RegistrationScreen"
+  //           options={{ headerShown: false }}
+  //         >
+  //           {({ navigation }) => (
+  //             <RegistrationScreen
+  //               navigation={navigation}
+  //               setIsLogin={setIsLogin}
+  //             />
+  //           )}
+  //         </MainStack.Screen>
+  //         <MainStack.Screen name="LoginScreen" options={{ headerShown: false }}>
+  //           {({ navigation }) => (
+  //             <LoginScreen navigation={navigation} setIsLogin={setIsLogin} />
+  //           )}
+  //         </MainStack.Screen>
+  //       </>
+  //     );
+  //   }
+  //   return (
+  //     <MainStack.Screen name="HomeScreen" options={{ headerShown: false }}>
+  //       {({ navigation }) => (
+  //         <Home navigation={navigation} setIsLogin={setIsLogin} />
+  //       )}
+  //     </MainStack.Screen>
+  //   );
+  // };
 
   return (
     <>
       <StatusBar style="auto" />
-      <NavigationContainer>
-        <MainStack.Navigator initialRouteName="LoginScreen">
+      {/* <NavigationContainer>
+        <MainStack.Navigator initialRouteName="LoginScreen"> */}
           {/* <MainStack.Screen
             name="RegistrationScreen"
             component={RegistrationScreen}
@@ -74,9 +79,14 @@ export default function App() {
             component={Home}
             options={{ headerShown: false }}
           /> */}
-          {isLogIn()}
+          {/* {isLogIn()}
         </MainStack.Navigator>        
-      </NavigationContainer>
+      </NavigationContainer> */}
+      <Provider store={store}>
+        <PersistGate persistor={persistor}>
+          <Main />
+        </PersistGate>
+      </Provider>
     </>
   );
 }

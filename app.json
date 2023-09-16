@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "start-ios",
-    "slug": "start-ios",
+    "name": "native.project",
+    "slug": "native.project",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

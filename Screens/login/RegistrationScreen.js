@@ -10,28 +10,31 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
-  Image,
   useWindowDimensions,
 } from 'react-native';
 import backgroundImage from '../../assets/images/background.png';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageUser } from '../../components/ImgUser';
-
+import {
+  authSignUpUser,
+  uploadAvatarToServer,
+} from '../../redux/login/authOperations';
 const initialState = {
-  login: '',
-  email: '',
-  password: '',
+  photoURL: null,
+  login: null,
+  email: null,
+  password: null,
 };
 
-export const RegistrationScreen = ({ setIsLogin }) => {
-  const [focusedInput, setFocusedInput] = useState(null);
+export const RegistrationScreen = ({ }) => {
   const [state, setState] = useState(initialState);
+  const [focusedInput, setFocusedInput] = useState(null);
   const [isHidePassword, setIsHidePassword] = useState(true);
-
   const { height, width } = useWindowDimensions();
-  const [selectedImage, setSelectedImage] = useState(null);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const handleInputFocus = (input) => {
     setFocusedInput(input);
@@ -46,8 +49,14 @@ export const RegistrationScreen = ({ setIsLogin }) => {
   };
   const handleSubmit = () => {
     console.log(state);
-    setState(initialState);
-    setIsLogin(true);
+    // setState(initialState);
+    // setIsLogin(true);
+    const { login, email, password } = state;
+
+    if (login && email && password) {
+      dispatch(authSignUpUser(state));
+      setState(initialState);
+    }
   };
 
   const pickImageAsync = async () => {
@@ -56,7 +65,9 @@ export const RegistrationScreen = ({ setIsLogin }) => {
       quality: 1,
     });
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      const photoURL = await uploadAvatarToServer(result.assets[0].uri);
+
+      setState((prev) => ({ ...prev, photoURL }));
     } else {
       alert('You did not select any image.');
     }
@@ -75,9 +86,9 @@ export const RegistrationScreen = ({ setIsLogin }) => {
         >
           <View style={styles.formContainer}>
             <ImageUser
-              selectedImage={selectedImage}
+              state={state}
               onPress={pickImageAsync}
-              onDelete={setSelectedImage}
+              onDelete={setState}
             />
             <Text style={styles.formTitle}>Реєстрація</Text>
             <View style={styles.inputThumb}>
