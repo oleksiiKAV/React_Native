@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "native.project",
-    "slug": "native.project",
+    "name": "native-project",
+    "slug": "native-project",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.kav73.nativeproject",
+      "packageType": "apk"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "84ff0037-aaf3-4563-a297-085c6d0a661d"
+      }
     }
   }
 }
